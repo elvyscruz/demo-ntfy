@@ -1,1 +1,5 @@
-print("hola a todos en el ITLA!, probando gitub actions")
+def saludar():
+    return "Hola Mundo"
+
+if __name__ == "__main__":
+    print(saludar())

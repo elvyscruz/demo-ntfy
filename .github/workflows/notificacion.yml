@@ -1,4 +1,4 @@
-name: Alerta Push Main
+name: CI y Alerta
 
 on:
   push:
@@ -6,13 +6,38 @@ on:
       - main
 
 jobs:
+  validar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: |
+          pip install flake8 pytest
+
+      - name: Linting
+        run: |
+          flake8 . --count --statistics
+
+      - name: Ejecutar pruebas unitarias
+        run: |
+          pytest -v
+
   notificar:
     runs-on: ubuntu-latest
+    needs: validar
 
     steps:
       - name: Enviar notificación a ntfy
         run: |
-          curl -H "Title: Nuevo Push en Main" \
+          curl -H "Title: CI Exitosa" \
                -H "Priority: default" \
-               -d "Se realizó un push al repositorio ${{ github.repository }} por ${{ github.actor }}. Commit: ${{ github.sha }}" \
+               -d "Push validado correctamente en ${{ github.repository }} por ${{ github.actor }}" \
                https://ntfy.sh/devops-itla
